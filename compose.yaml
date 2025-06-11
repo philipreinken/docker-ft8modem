@@ -1,0 +1,114 @@
+x-ft8modem-source:
+  name: ft8modem
+  license: GPL-3.0
+  homepage: https://www.kk5jy.net/ft8modem/
+  filename: &ft8modem_filename ft8modem-20250526-1.0.10161.tar.gz
+  filename_base: &ft8modem_filename_base ft8modem-20250526-1.0.10161
+  source_archive: &ft8modem_source_archive https://www.kk5jy.net/ft8modem/Software/ft8modem-20250526-1.0.10161.tar.gz
+
+x-rtaudio-source:
+  name: rtaudio
+  license: MIT
+  homepage: https://www.music.mcgill.ca/~gary/rtaudio/
+  source_repo: &rtaudio_source_repo https://github.com/thestk/rtaudio.git#6.0.1
+
+services:
+  ft8modem:
+    build:
+      context: .
+      args:
+        FT8MODEM_SOURCE_FILENAME: *ft8modem_filename
+        FT8MODEM_SOURCE_FILENAME_BASE: *ft8modem_filename_base
+        FT8MODEM_SOURCE_DEST: /ft8modem
+        RTAUDIO_SOURCE_DEST: /rtaudio
+      dockerfile_inline: |
+        #######################################################################
+        # base
+        FROM debian:bookworm-slim AS base
+        
+        #######################################################################
+        # source
+        FROM base AS source
+        
+        ARG FT8MODEM_SOURCE_FILENAME
+        ARG FT8MODEM_SOURCE_FILENAME_BASE
+        ARG FT8MODEM_SOURCE_DEST
+        
+        COPY --from=ft8modem_source_archive /$$FT8MODEM_SOURCE_FILENAME /tmp/
+        
+        RUN <<EOF
+          tar -xzf /tmp/$$FT8MODEM_SOURCE_FILENAME -C /tmp/
+          mv /tmp/$$FT8MODEM_SOURCE_FILENAME_BASE $$FT8MODEM_SOURCE_DEST
+          rm -f /tmp/$$FT8MODEM_SOURCE_FILENAME
+        EOF
+        
+        #######################################################################
+        # build-deps
+        FROM base AS build-deps
+        
+        RUN <<EOF
+          apt-get update && apt-get install -y \
+            librtaudio6 \
+            librtaudio-dev \
+            libsndfile1-dev \
+            cmake \
+            git \
+            autoconf \
+            libtool \
+            automake \
+            build-essential \
+            wsjtx
+        
+          ldconfig
+          rm -rf /var/lib/apt/lists/* /tmp/*
+        EOF
+        
+        #######################################################################
+        # build-rtaudio
+        FROM build-deps AS build-rtaudio
+        
+        ARG RTAUDIO_SOURCE_DEST
+        
+        COPY --from=rtaudio_source_repo / $$RTAUDIO_SOURCE_DEST
+        
+        WORKDIR $$RTAUDIO_SOURCE_DEST
+        
+        RUN <<EOF
+          cmake .
+          make
+          make install
+        EOF
+        
+        #######################################################################
+        # build-ft8modem
+        FROM build-deps AS build-ft8modem
+        
+        COPY --from=build-rtaudio /usr/local/include/rtaudio /usr/local/include/
+        COPY --from=build-rtaudio /usr/local/lib/librtaudio* /usr/local/lib/
+        COPY --from=build-rtaudio /usr/local/lib/pkgconfig /usr/local/lib/
+        COPY --from=build-rtaudio /usr/local/share/rtaudio /usr/local/share/
+        
+        COPY --from=source /ft8modem /ft8modem
+        
+        WORKDIR /ft8modem
+        
+        RUN <<EOF
+          make
+          make install
+        EOF
+        
+        #######################################################################
+        # final
+        FROM base AS final
+        
+        COPY --from=build-ft8modem /ft8modem/ft8modem /usr/local/bin/
+        COPY --from=build-ft8modem /ft8modem/lib/* /usr/local/lib/
+        
+        ENTRYPOINT ["/usr/local/bin/ft8modem"]
+        CMD ["--help"]
+      target: final
+      tags:
+        - docker.io/philipreinken/ft8modem:latest
+      additional_contexts:
+        ft8modem_source_archive: *ft8modem_source_archive
+        rtaudio_source_repo: *rtaudio_source_repo
