@@ -80,4 +80,3 @@ COPY --link --from=build_ft8modem  /usr/local/bin/* /usr/local/bin/
 COPY --link --from=build_ft8modem /usr/local/lib/ft8modem/ /usr/local/lib/
 
 ENTRYPOINT ["/usr/local/bin/ft8modem"]
-CMD ["--help"]
