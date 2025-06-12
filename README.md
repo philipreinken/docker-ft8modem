@@ -4,7 +4,3 @@ This repository contains tooling to build a Docker image[^1] for the [ft8modem](
 Matt KK5JY.
 
 [^1]: https://hub.docker.com/r/philipreinken/ft8modem
-
-### TODO
-
-- [ ] Add multi-arch support
