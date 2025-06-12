@@ -79,4 +79,10 @@ FROM runtime_deps AS final
 COPY --link --from=build_ft8modem  /usr/local/bin/* /usr/local/bin/
 COPY --link --from=build_ft8modem /usr/local/lib/ft8modem/ /usr/local/lib/
 
+RUN useradd -ms /bin/bash ft8modem
+
+USER ft8modem
+
 ENTRYPOINT ["/usr/local/bin/ft8modem"]
+
+FROM final

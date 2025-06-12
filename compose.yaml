@@ -9,3 +9,13 @@ services:
       tags:
         - docker.io/philipreinken/ft8modem:latest
         - docker.io/philipreinken/ft8modem:1.0.10195
+    user: "1000:1000"
+    group_add:
+      - "audio"
+    environment:
+      PULSE_SERVER: "unix:${XDG_RUNTIME_DIR}/pulse/native"
+    volumes:
+      - "${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native"
+      - "${HOME}/.config/pulse/cookie:/home/linhpsdr/.config/pulse/cookie"
+    devices:
+      - "/dev/snd"

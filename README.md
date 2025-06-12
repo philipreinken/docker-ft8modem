@@ -7,5 +7,4 @@ Matt KK5JY.
 
 ### TODO
 
-- [ ] Complete the `compose.yaml` so sound cards are available
 - [ ] Add multi-arch support
