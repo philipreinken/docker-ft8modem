@@ -1,0 +1,118 @@
+Index: ft8modem/sc.h
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ft8modem/sc.h b/ft8modem/sc.h
+--- a/ft8modem/sc.h	(date 1730490553000)
++++ b/ft8modem/sc.h	
+@@ -92,29 +92,31 @@
+ inline bool SoundCard::start(bool play, bool rec) {
+ 	stop();
+ 
+-	params.deviceId = mCard;
+-	params.nChannels = mChannels;
+-	params.firstChannel = 0;
++  params.deviceId = mCard;
++  params.nChannels = mChannels;
++  params.firstChannel = 0;
+ 
+-	// open the sound card
+-	int result = adc.openStream(
+-		play ? &params : 0, // output
+-		rec ? &params : 0,  // input
+-		RTAUDIO_FLOAT32,    // format
+-		mRate,              // rate
+-		&mWin,       // buffer size
+-		&handler,    // callback
+-		this);       // callback user data
+-	if (result != RTAUDIO_NO_ERROR)
+-		return false;
++  try {
++      // Open the sound card stream
++      adc.openStream(
++          play ? &params : nullptr, // output
++          rec ? &params : nullptr, // input
++          RTAUDIO_FLOAT32,         // format
++          mRate,                   // rate
++          &mWin,                   // buffer size
++          &handler,                // callback
++          this                     // callback user data
++      );
++
++      // Start the stream running
++      adc.startStream();
++  } catch (RtAudioError &e) {
++      std::cerr << "RtAudio error: " << e.getMessage() << std::endl;
++      return false;
++  }
+ 
+-	// start the stream running
+-	result = adc.startStream();
+-	if (result != RTAUDIO_NO_ERROR)
+-		return false;
+-
+-	// happy
+-	return true;
++  // Stream started successfully
++  return true;
+ }
+ 
+ /*
+@@ -203,34 +205,31 @@
+  *   showDevices()
+  *
+  */
+-inline void SoundCard::showDevices (const std::string &linePrefix, bool showNoInput) {
+-	RtAudio adc; //(RtAudio::LINUX_ALSA);
++inline void SoundCard::showDevices(const std::string &linePrefix, bool showNoInput) {
++    RtAudio adc;
+ 
+-	// Determine the number of devices available
+-	unsigned int devices = adc.getDeviceCount();
+-	if (devices == 0) {
+-		std::cout << "No audio devices found." << std::endl;
+-		return;
+-	}
++    // Determine the number of devices available
++    unsigned int devices = adc.getDeviceCount();
++    if (devices == 0) {
++        std::cout << "No audio devices found." << std::endl;
++        return;
++    }
+ 
+-	// Scan through devices for various capabilities
+-	//std::cout << "Valid devices:" << std::endl;
+-	typedef std::vector<unsigned int> idlist_t;
+-	idlist_t ids = adc.getDeviceIds();
+-	for (idlist_t::const_iterator i = ids.begin(); i != ids.end(); ++i) {
+-		RtAudio::DeviceInfo info = adc.getDeviceInfo(*i);
++    // Scan through devices for various capabilities
++    for (unsigned int i = 0; i < devices; ++i) {
++        RtAudio::DeviceInfo info = adc.getDeviceInfo(i);
+ 
+-		if (showNoInput || info.inputChannels > 0) {
+-			std::cout << linePrefix;
+-			std::cout << "ID = " << *i;
+-			std::cout << ": \"" << info.name << "\"";
+-			std::cout << ", inputs = " << channelsToString(info.inputChannels);
+-			std::cout << ", outputs = " << channelsToString(info.outputChannels);
+-			std::cout << ", rates = " << ratesToString(info.sampleRates);
+-			std::cout << "\n";
+-		}
+-	}
+-	std::cout.flush();
++        if (showNoInput || info.inputChannels > 0) {
++            std::cout << linePrefix;
++            std::cout << "ID = " << i;
++            std::cout << ": \"" << info.name << "\"";
++            std::cout << ", inputs = " << channelsToString(info.inputChannels);
++            std::cout << ", outputs = " << channelsToString(info.outputChannels);
++            std::cout << ", rates = " << ratesToString(info.sampleRates);
++            std::cout << "\n";
++        }
++    }
++    std::cout.flush();
+ }
+ 
+ /*

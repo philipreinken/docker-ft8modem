@@ -1,0 +1,105 @@
+Index: ft8modem/ft8modem.cc
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ft8modem/ft8modem.cc b/ft8modem/ft8modem.cc
+--- a/ft8modem/ft8modem.cc	(date 1730770706000)
++++ b/ft8modem/ft8modem.cc	
+@@ -71,31 +71,38 @@
+ 	cout << endl;
+ 	// scan the devices for promising candidates
+ 	{
+-		RtAudio adc;
+-		typedef std::vector<unsigned int> idlist_t;
+-		idlist_t ids = adc.getDeviceIds();
+-		for (idlist_t::const_iterator i = ids.begin(); i != ids.end(); ++i) {
+-			RtAudio::DeviceInfo info = adc.getDeviceInfo(*i);
+-			size_t best_rate = 0;
++      RtAudio adc;
++
++      // Determine the number of devices available
++      unsigned int devices = adc.getDeviceCount();
++      if (devices == 0) {
++          std::cout << "No audio devices found." << std::endl;
++          return;
++      }
++
++      // Scan through devices for promising candidates
++      for (unsigned int i = 0; i < devices; ++i) {
++          RtAudio::DeviceInfo info = adc.getDeviceInfo(i);
++          size_t best_rate = 0;
+ 
+-			// skip devices with no inputs
+-			if (info.inputChannels == 0)
+-				continue;
++          // Skip devices with no inputs
++          if (info.inputChannels == 0)
++              continue;
+ 
+-			for (size_t r = 0; r != info.sampleRates.size(); ++r) {
+-				size_t rate = info.sampleRates[r];
+-				if (rate > best_rate && rate <= 48000)
+-					best_rate = rate;
+-			}
++          for (size_t r = 0; r != info.sampleRates.size(); ++r) {
++              size_t rate = info.sampleRates[r];
++              if (rate > best_rate && rate <= 48000)
++                  best_rate = rate;
++          }
+ 
+-			if (best_rate >= 12000) {
+-				std::cout
+-					<< "          + ID = " << *i
+-					<< ": \"" << info.name << "\""
+-					<< ", best rate = " << best_rate << "\n";
+-			}
+-		}
+-	}
++          if (best_rate >= 12000) {
++              std::cout
++                  << "          + ID = " << i
++                  << ": \"" << info.name << "\""
++                  << ", best rate = " << best_rate << "\n";
++          }
++      }
++  }
+ 	cout << endl;
+ 	cout << "    If your sound device is not shown above, it is likely because it" << endl;
+ 	cout << "    reports no inputs to the operating system, or it is already in" << endl;
+@@ -188,19 +195,23 @@
+ //  findDeviceByName(s);
+ //
+ static int findDeviceByName(const string &name) {
+-	const string key(my::toUpper(name));
+-	RtAudio adc; //(RtAudio::LINUX_ALSA);
++    const string key(my::toUpper(name));
++    RtAudio adc;
++
++    // Determine the number of devices available
++    unsigned int devices = adc.getDeviceCount();
++    if (devices == 0) {
++        return -1;
++    }
+ 
+-	// Scan through devices for various capabilities
+-	typedef std::vector<unsigned int> idlist_t;
+-	idlist_t ids = adc.getDeviceIds();
+-	for (idlist_t::const_iterator i = ids.begin(); i != ids.end(); ++i) {
+-		RtAudio::DeviceInfo info = adc.getDeviceInfo(*i);
+-		string haystack = my::toUpper(info.name);
+-		if (haystack.find(key) != string::npos)
+-			return (*i);
+-	}
+-	return -1;
++    // Scan through devices for various capabilities
++    for (unsigned int i = 0; i < devices; ++i) {
++        RtAudio::DeviceInfo info = adc.getDeviceInfo(i);
++        string haystack = my::toUpper(info.name);
++        if (haystack.find(key) != string::npos)
++            return i;
++    }
++    return -1;
+ }
+ 
+ 
