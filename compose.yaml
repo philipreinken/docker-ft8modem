@@ -1,17 +1,11 @@
-x-ft8modem-source:
-  name: ft8modem
-  license: GPL-3.0
-  homepage: https://www.kk5jy.net/ft8modem/
-  source_archive_url: &ft8modem_source_archive_url 'https://www.kk5jy.net/ft8modem/Software/ft8modem-20250607-1.0.10195.tar.gz'
-  source_archive_sha256: &ft8modem_source_archive_sha256 '2992fa23db13d637e1ae88542f781fe6e12ebf16ee9305981962e119ddcc861d'
-
 services:
   ft8modem:
     build:
       context: .
       target: final
       args:
-        FT8MODEM_SOURCE_ARCHIVE_URL: *ft8modem_source_archive_url
-        FT8MODEM_SOURCE_ARCHIVE_SHA256: *ft8modem_source_archive_sha256
+        FT8MODEM_SOURCE_ARCHIVE_URL: 'https://www.kk5jy.net/ft8modem/Software/ft8modem-20250607-1.0.10195.tar.gz'
+        FT8MODEM_SOURCE_ARCHIVE_SHA256: '2992fa23db13d637e1ae88542f781fe6e12ebf16ee9305981962e119ddcc861d'
       tags:
         - docker.io/philipreinken/ft8modem:latest
+        - docker.io/philipreinken/ft8modem:1.0.10195
