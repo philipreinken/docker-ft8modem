@@ -9,6 +9,9 @@ services:
       tags:
         - docker.io/philipreinken/ft8modem:latest
         - docker.io/philipreinken/ft8modem:1.0.10195
+      platforms: # In case of problems, see: https://docs.docker.com/build/building/multi-platform/#prerequisites
+        - linux/amd64
+        - linux/arm64
     user: "1000:1000"
     group_add:
       - "audio"
