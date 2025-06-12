@@ -34,5 +34,5 @@ jobs:
           files: |
             ./compose.yaml
             cwd://${{ steps.meta.outputs.bake-file }}
-          push: ${{ github.ref == 'refs/heads/main' || github.ref_type == 'tag' }}
-          targets: ft8modem
+          push: ${{ github.ref_type == 'tag' }}
+          targets: final
