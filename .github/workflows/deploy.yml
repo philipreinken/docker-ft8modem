@@ -1,12 +1,23 @@
-name: ci
+name: Deploy
 
 on:
   push:
+    branches:
+      - main
+    tags:
+      - '*'
 
 jobs:
-  bake:
+  deploy:
     runs-on: ubuntu-latest
+    environment: 'Docker Hub'
     steps:
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ vars.DOCKERHUB_USERNAME || github.actor }}/ft8modem:latest
+
       - name: Login to DockerHub
         if: ${{ github.ref == 'refs/heads/main' || github.ref_type == 'tag' }}
         uses: docker/login-action@v3
@@ -20,7 +31,8 @@ jobs:
       - name: Build and push
         uses: docker/bake-action@v6
         with:
+          files: |
+            ./compose.yaml
+            cwd://${{ steps.meta.outputs.bake-file }}
           push: ${{ github.ref == 'refs/heads/main' || github.ref_type == 'tag' }}
-          set: |
-            ${{ github.ref_type == 'tag' && format('*.tags={0}/ft8modem:{1}', vars.DOCKERHUB_USERNAME, github.ref_name) }}
-            *.tags=${{ vars.DOCKERHUB_USERNAME }}/ft8modem:latest
+          targets: ft8modem
