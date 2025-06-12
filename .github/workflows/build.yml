@@ -1,0 +1,30 @@
+name: Build
+
+on:
+  push:
+    branches_ignore:
+      - main
+    tags_ignore:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ vars.DOCKERHUB_USERNAME || github.actor }}/ft8modem:latest
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/bake-action@v6
+        with:
+          files: |
+            ./compose.yaml
+            cwd://${{ steps.meta.outputs.bake-file }}
+          push: false
+          targets: ft8modem
