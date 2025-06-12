@@ -19,6 +19,6 @@ services:
       PULSE_SERVER: "unix:${XDG_RUNTIME_DIR}/pulse/native"
     volumes:
       - "${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native"
-      - "${HOME}/.config/pulse/cookie:/home/linhpsdr/.config/pulse/cookie"
+      - "${HOME}/.config/pulse/cookie:/home/ft8modem/.config/pulse/cookie"
     devices:
       - "/dev/snd"
