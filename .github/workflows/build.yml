@@ -27,4 +27,4 @@ jobs:
             ./compose.yaml
             cwd://${{ steps.meta.outputs.bake-file }}
           push: false
-          targets: final
+          targets: ft8modem
