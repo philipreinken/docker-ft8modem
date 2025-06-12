@@ -2,9 +2,9 @@ name: Build
 
 on:
   push:
-    branches_ignore:
+    branches-ignore:
       - main
-    tags_ignore:
+    tags-ignore:
       - '*'
 
 jobs:
