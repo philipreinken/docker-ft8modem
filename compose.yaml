@@ -20,5 +20,7 @@ services:
     volumes:
       - "${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native"
       - "${HOME}/.config/pulse/cookie:/home/ft8modem/.config/pulse/cookie"
+    tmpfs:
+      - "/run/user/1000/ft8modem:mode=755,uid=1000,gid=1000"
     devices:
       - "/dev/snd"
