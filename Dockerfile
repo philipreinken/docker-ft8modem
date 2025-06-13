@@ -7,19 +7,22 @@ FROM debian:bookworm-slim AS base
 
 FROM base AS runtime_deps
 
-RUN <<EOF
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  <<EOF
   apt-get update && apt-get install -y --no-install-recommends \
     librtaudio6 \
     libsndfile1 \
-    wsjtx
-
-  apt-get clean
-  rm -rf /var/lib/apt/lists/* /tmp/*
+    wsjtx \
+    python3 \
+    python3-pip
 EOF
 
 FROM runtime_deps AS build_deps
 
-RUN <<EOF
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  <<EOF
   apt-get update && apt-get install -y --no-install-recommends \
     librtaudio-dev \
     libsndfile1-dev \
@@ -28,10 +31,7 @@ RUN <<EOF
     autoconf \
     libtool \
     automake \
-    build-essential \
-
-  apt-get clean
-  rm -rf /var/lib/apt/lists/* /tmp/*
+    build-essential
 EOF
 
 FROM base AS ft8modem_source_web_prepare
