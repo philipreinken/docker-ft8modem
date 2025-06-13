@@ -8,7 +8,7 @@ FROM debian:bookworm-slim AS base
 FROM base AS runtime_deps
 
 RUN <<EOF
-  apt-get update && apt-get install -y \
+  apt-get update && apt-get install -y --no-install-recommends \
     librtaudio6 \
     libsndfile1 \
     wsjtx
@@ -20,7 +20,7 @@ EOF
 FROM runtime_deps AS build_deps
 
 RUN <<EOF
-  apt-get update && apt-get install -y \
+  apt-get update && apt-get install -y --no-install-recommends \
     librtaudio-dev \
     libsndfile1-dev \
     cmake \
