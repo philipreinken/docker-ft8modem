@@ -15,7 +15,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: 'Docker Hub'
+    environment:
+      name: 'Docker Hub'
+      url: 'https://hub.docker.com/r/philipreinken/ft8modem'
     steps:
       - name: Docker meta
         id: meta
