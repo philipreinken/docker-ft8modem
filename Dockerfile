@@ -61,6 +61,7 @@ FROM build_deps AS build_ft8modem
 
 COPY --link ./ft8modem.cc.patch /ft8modem.cc.patch
 COPY --link ./sc.h.patch /sc.h.patch
+COPY --link ./ft8qso.patch /ft8qso.patch
 
 COPY --link --from=ft8modem_source /ft8modem /ft8modem
 
@@ -69,6 +70,7 @@ WORKDIR /ft8modem
 RUN <<EOF
   patch -p1 ft8modem.cc < /ft8modem.cc.patch
   patch -p1 sc.h < /sc.h.patch
+  patch -p1 ft8qso < /ft8qso.patch
 
   make
   make install
@@ -76,12 +78,14 @@ EOF
 
 FROM runtime_deps AS final
 
-COPY --link --from=build_ft8modem  /usr/local/bin/* /usr/local/bin/
-COPY --link --from=build_ft8modem /usr/local/lib/ft8modem/ /usr/local/lib/
+COPY --link --from=build_ft8modem  /usr/local/bin /usr/local/bin
+COPY --link --from=build_ft8modem /usr/local/lib/ft8modem/* /usr/local/lib/ft8modem/
 
 RUN useradd -ms /bin/bash ft8modem
 
 USER ft8modem
+
+VOLUME ["/home/ft8modem"]
 
 ENTRYPOINT ["/usr/local/bin/ft8modem"]
 

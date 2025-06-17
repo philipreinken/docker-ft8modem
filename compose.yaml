@@ -24,3 +24,52 @@ services:
       - "/run/user/1000/ft8modem:mode=755,uid=1000,gid=1000"
     devices:
       - "/dev/snd"
+    network_mode: "host"
+
+  ft8cat:
+    extends:
+      service: ft8modem
+    entrypoint: "/usr/local/bin/ft8cat"
+
+  af2udp:
+    extends:
+      service: ft8modem
+    entrypoint: "/usr/local/bin/af2udp"
+
+  ft8collect:
+    extends:
+      service: ft8modem
+    entrypoint: "/usr/local/bin/ft8collect"
+
+  ft8encode:
+    extends:
+      service: ft8modem
+    entrypoint: "/usr/local/bin/ft8encode"
+
+  ft8qso:
+    extends:
+      service: ft8modem
+    entrypoint: "/usr/local/bin/ft8qso"
+
+  ft8report:
+    extends:
+      service: ft8modem
+    entrypoint: "/usr/local/bin/ft8report"
+
+  ft8sdr:
+    extends:
+      service: ft8modem
+    entrypoint: "/usr/local/bin/ft8sdr"
+
+  ft8swl:
+    extends:
+      service: ft8modem
+    entrypoint: "/usr/local/bin/ft8swl"
+
+  # FIXME: Service exits; figure out process mgmt.
+  work:
+    extends:
+      service: ft8modem
+    entrypoint: "/usr/local/bin/ft8qso"
+    command: ["ft8cat", "-s", "-a", "/home/ft8modem/ALL.txt", "ft8modem", "ft8", "4"] # configure to your needs via compose.override.yaml
+

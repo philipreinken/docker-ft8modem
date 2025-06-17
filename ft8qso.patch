@@ -1,0 +1,22 @@
+diff --git a/tmp/tmp.QSr4YyZWdx/ft8modem-20250607-1.0.10195/ft8qso b/home/philip/src/misc/docker-ft8modem/ft8modem/ft8qso
+index 84efb57..551f2fc 100755
+--- a/tmp/tmp.QSr4YyZWdx/ft8modem-20250607-1.0.10195/ft8qso
++++ b/home/philip/src/misc/docker-ft8modem/ft8modem/ft8qso
+@@ -77,7 +77,7 @@ def formatsnr(snr):
+ #
+ #  reset(call) - reset counters for call
+ #
+-def reset(call):
++def reset(state, call):
+ 	key = basecall(call)
+ 	if not key or not key in state.cache.keys():
+ 		return
+@@ -421,7 +421,7 @@ def main():
+ 						node = None
+ 						if key and key in state.cache.keys():
+ 							node = state.cache[key]
+-							reset(key)
++							reset(state, key)
+ 						if not node:
+ 							#
+ 							#  TODO: to enable blind-calling, perhaps
